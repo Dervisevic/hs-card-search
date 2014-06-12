@@ -2,25 +2,7 @@ require 'readline'
 require 'open-uri'
 require 'json'
 
-
-LIST = [
-  'search', 'download', 'open',
-  'help', 'history', 'quit',
-  'url', 'next', 'clear',
-  'prev', 'past'
-].sort
-
-# comp = proc { |s| LIST.grep(/^#{Regexp.escape(s)}/) }
-
-# Readline.completion_append_character = " "
-# Readline.completion_proc = comp
-
-# while line = Readline.readline('> ', true)
-#   p line
-# end
-
 list = []
-str = ""
 open("http://hearthstoneapi.com/cards/findAll") {|f| str = f.read }
 cards = JSON.parse(str)
 
@@ -28,9 +10,7 @@ cards.each do |card|
   list << card["name"].downcase
 end
 
-
 list = list.sort
-
 
 comp = proc { |s| list.grep(/^#{Regexp.escape(s)}/) }
 
@@ -78,16 +58,14 @@ while line = Readline.readline('> ', true)
     else "Neutral"
   end
 
+  #Not sure yet how to display all the info.
   p card["name"].green
   p clss + " " + quality + " " + set + " " + type + " card."
-
-
-
 
 end
 
 
-
+#Colors for later
 class String
 def black;          "\033[30m#{self}\033[0m" end
 def red;            "\033[31m#{self}\033[0m" end
@@ -109,7 +87,7 @@ def bold;           "\033[1m#{self}\033[22m" end
 def reverse_color;  "\033[7m#{self}\033[27m" end
 end
 
-
+# Example card for references
 # [
 #   {
 #     "set": 3,
