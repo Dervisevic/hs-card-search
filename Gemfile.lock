@@ -1,0 +1,12 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    colorize (0.7.3)
+    terminal-table (1.4.5)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  colorize
+  terminal-table

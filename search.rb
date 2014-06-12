@@ -1,10 +1,12 @@
 require 'readline'
 require 'open-uri'
 require 'json'
+require 'terminal-table'
+require 'colorize'
 
+# Grab all cards and store them for autocomplete. This should perhaps be stored locally.
 list = []
-open("http://hearthstoneapi.com/cards/findAll") {|f| str = f.read }
-cards = JSON.parse(str)
+cards = JSON.parse(File.read('card-names.json'))
 
 cards.each do |card|
   list << card["name"].downcase
@@ -17,6 +19,7 @@ comp = proc { |s| list.grep(/^#{Regexp.escape(s)}/) }
 Readline.completion_append_character = ""
 Readline.completion_proc = comp
 
+# When a name has been searched, send a request and start parsing.
 while line = Readline.readline('> ', true)
   line.gsub!(' ', '%20')
   card = ""
@@ -32,11 +35,11 @@ while line = Readline.readline('> ', true)
   end
 
   quality = case card["quality"].to_i
-    when 0 then "Free"
-    when 1 then "Common"
-    when 3 then "Rare"
-    when 4 then "Epic"
-    when 5 then "Legendary"
+    when 0 then "Free".colorize(:light_black)
+    when 1 then "Common".colorize(:white)
+    when 3 then "Rare".colorize(:light_blue)
+    when 4 then "Epic".colorize(:magenta)
+    when 5 then "Legendary".colorize(:yellow)
   end
 
   type = case card["type"].to_i
@@ -58,48 +61,26 @@ while line = Readline.readline('> ', true)
     else "Neutral"
   end
 
-  #Not sure yet how to display all the info.
-  p card["name"].green
-  p clss + " " + quality + " " + set + " " + type + " card."
+  race = case card["race"].to_i
+    when 14 then "Murloc"
+    when 15 then "Demon"
+    when 20 then "Beast"
+    when 21 then "Totem"
+    when 23 then "Pirate"
+    when 24 then "Dragon"
+    else "Neutral"
+  end
 
+  rows = []
+  rows << ['Name', card['name']]
+  rows << ['Cost'.colorize(:yellow), card['cost']]
+  rows << ['Attack'.colorize(:red), card['attack']] if type == "Minion"
+  rows << ['Health'.colorize(:green), card['health']] if type == "Minion"
+  rows << ['Quality', quality.colorize(:orange)]
+  rows << ['Type', type]
+  rows << ['Set', set]
+  rows << ['Race', race]
+  rows << ['Description', card['description']]
+  table = Terminal::Table.new :rows => rows
+  p table
 end
-
-
-#Colors for later
-class String
-def black;          "\033[30m#{self}\033[0m" end
-def red;            "\033[31m#{self}\033[0m" end
-def green;          "\033[32m#{self}\033[0m" end
-def brown;          "\033[33m#{self}\033[0m" end
-def blue;           "\033[34m#{self}\033[0m" end
-def magenta;        "\033[35m#{self}\033[0m" end
-def cyan;           "\033[36m#{self}\033[0m" end
-def gray;           "\033[37m#{self}\033[0m" end
-def bg_black;       "\033[40m#{self}\033[0m" end
-def bg_red;         "\033[41m#{self}\033[0m" end
-def bg_green;       "\033[42m#{self}\033[0m" end
-def bg_brown;       "\033[43m#{self}\033[0m" end
-def bg_blue;        "\033[44m#{self}\033[0m" end
-def bg_magenta;     "\033[45m#{self}\033[0m" end
-def bg_cyan;        "\033[46m#{self}\033[0m" end
-def bg_gray;        "\033[47m#{self}\033[0m" end
-def bold;           "\033[1m#{self}\033[22m" end
-def reverse_color;  "\033[7m#{self}\033[27m" end
-end
-
-# Example card for references
-# [
-#   {
-#     "set": 3,
-#     "type": 5,
-#     "faction": 3,
-#     "classs": 4,
-#     "quality": 4,
-#     "cost": 0,
-#     "name": "Preparation",
-#     "description": "The next spell you cast this turn costs (3) less.",
-#     "createdAt": "2014-04-10T18:25:18.995Z",
-#     "updatedAt": "2014-04-10T18:25:18.995Z",
-#     "id": 215
-#   }
-# ]
