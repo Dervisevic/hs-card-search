@@ -82,5 +82,5 @@ while line = Readline.readline('> ', true)
   rows << ['Race', race]
   rows << ['Description', card['description']]
   table = Terminal::Table.new :rows => rows
-  p table
+  puts table
 end
