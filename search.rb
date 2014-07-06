@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'readline'
 require 'open-uri'
 require 'json'
@@ -6,7 +7,7 @@ require 'colorize'
 
 # Grab all cards and store them for autocomplete. This should perhaps be stored locally.
 list = []
-cards = JSON.parse(File.read('card-names.json'))
+cards = JSON.parse(File.read('card-names.json').force_encoding("utf-8"))
 
 cards.each do |card|
   list << card["name"].downcase
