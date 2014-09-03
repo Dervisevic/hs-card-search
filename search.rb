@@ -4,6 +4,7 @@ require 'open-uri'
 require 'json'
 require 'terminal-table'
 require 'colorize'
+require 'optparse'
 
 # Grab all cards and store them for autocomplete. This should perhaps be stored locally.
 list = []
@@ -20,13 +21,13 @@ comp = proc { |s| list.grep(/^#{Regexp.escape(s)}/) }
 Readline.completion_append_character = ""
 Readline.completion_proc = comp
 
-# When a name has been searched, send a request and start parsing.
-while line = Readline.readline('> ', true)
-  line.gsub!(' ', '%20')
+def getCard(name)
   card = ""
-  open("http://hearthstoneapi.com/cards/name/"+line) {|f| card = JSON.parse(f.read) }
+  open("http://hearthstoneapi.com/cards/name/"+name) {|f| card = JSON.parse(f.read) }
   card = card[0]
+end
 
+def displayCard(card)
   set = case card["set"].to_i
     when 2 then "Basic"
     when 3 then "Expert"
@@ -84,4 +85,21 @@ while line = Readline.readline('> ', true)
   rows << ['Description', card['description']]
   table = Terminal::Table.new :rows => rows
   puts table
+end
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$PROGRAM_NAME} [options]"
+  opts.on('-c n', '--card=n', 'Card name') do |c|
+    c.gsub!(' ', '%20')
+    displayCard(getCard(c))
+    exit
+  end
+end
+parser.parse!
+
+
+# When a name has been searched, send a request and start parsing.
+while line = Readline.readline('> ', true)
+  line.gsub!(' ', '%20')
+  displayCard(getCard(line))
 end
