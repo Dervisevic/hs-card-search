@@ -61,7 +61,12 @@ class Card
   end
 
   def display
-    type = getType()
+    begin
+      type = getType()
+    rescue
+      puts "Card not found".colorize(:red)
+      exit
+    end
     rows = []
     rows << ['Name', @card['name']]
     rows << ['Cost'.colorize(:yellow), @card['cost']]
