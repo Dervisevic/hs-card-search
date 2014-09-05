@@ -8,7 +8,7 @@ require 'optparse'
 require_relative 'src/card.rb'
 require_relative 'src/search.rb'
 
-search = Search.new('card-names.json')
+search = Search.new()
 search.buildAutocomplete
 search.initParser
 search.initReadline

@@ -1,82 +1,55 @@
 class Card
-  def initialize(name)
-  card = ""
-  open("http://hearthstoneapi.com/cards/name/"+name) {|f| card = JSON.parse(f.read) }
-  @card = card[0]
+  def initialize(card)
+    @card = card
   end
 
-  def getSet
-    case @card["set"].to_i
-      when 2 then "Basic"
-      when 3 then "Expert"
-      when 4 then "Reward"
-      when 5 then "Missions"
-      when 11 then "Promotion"
+  def getRarity
+    case @card["rarity"]
+      when "Free" then "Free".colorize(:light_black)
+      when "Common" then "Common".colorize(:white)
+      when "Rare" then "Rare".colorize(:light_blue)
+      when "Epic" then "Epic".colorize(:magenta)
+      when "Legendary" then "Legendary".colorize(:yellow)
     end
   end
 
-  def getQuality
-    case @card["quality"].to_i
-      when 0 then "Free".colorize(:light_black)
-      when 1 then "Common".colorize(:white)
-      when 3 then "Rare".colorize(:light_blue)
-      when 4 then "Epic".colorize(:magenta)
-      when 5 then "Legendary".colorize(:yellow)
+  def getPlayerClass
+    case @card["playerClass"]
+      when "Priest" then "Priest".colorize(:white)
+      when "Druid" then "Druid".colorize(:light_green)
+      when "Mage" then "Mage".colorize(:light_blue)
+      when "Shaman" then "Shaman".colorize(:blue)
+      when "Paladin" then "Paladin".colorize(:yellow)
+      when "Warlock" then "Warlock".colorize(:magenta)
+      when "Hunter" then "Hunter".colorize(:green)
+      when "Rogue" then "Rogue".colorize(:yellow)
+      when "Warrior" then "Warrior".colorize(:red)
     end
   end
 
-  def getType
-    case @card["type"].to_i
-      when 4 then "Minion"
-      when 5 then "Spell"
-      when 7 then "Weapon"
-    end
-  end
-
-  def getClass
-    case @card["class"].to_i
-      when 1 then "Warrior"
-      when 2 then "Paladin"
-      when 3 then "Hunter"
-      when 4 then "Rogue"
-      when 5 then "Priest"
-      when 7 then "Shaman"
-      when 8 then "Mage"
-      when 9 then "Warlock"
-      when 11 then "Druid"
-      else "Neutral"
-    end
-  end
-
-  def getRace
-    case @card["race"].to_i
-      when 14 then "Murloc"
-      when 15 then "Demon"
-      when 20 then "Beast"
-      when 21 then "Totem"
-      when 23 then "Pirate"
-      when 24 then "Dragon"
-      else "Neutral"
-    end
+  def cleanText(text)
+    return "" if text.nil?
+    text.gsub!(/\<\/*[ib]\>/, "")
+    text
   end
 
   def display
-    begin
-      type = getType()
-    rescue
-      puts "Card not found".colorize(:red)
-      exit
-    end
+    type = @card['type']
+    # Enchantments aren't cards
+    return if type == "Enchantment"
     rows = []
     rows << ['Name', @card['name']]
     rows << ['Cost'.colorize(:yellow), @card['cost']]
     rows << ['Attack'.colorize(:red), @card['attack']] if type == "Minion"
     rows << ['Health'.colorize(:green), @card['health']] if type == "Minion"
-    rows << ['Quality', getQuality().colorize(:orange)]
+    rows << ['Durability'.colorize(:green), @card['durability']] if type == "Weapon"
+    rows << ['Quality', getRarity()]
+    rows << ['Class', getPlayerClass()] unless @card['playerClass'].nil?
     rows << ['Type', type]
-    rows << ['Set', getSet()]
-    rows << ['Race', getRace()]
-    rows << ['Description', @card['description']]
+    rows << ['Set', @card['set']] unless @card['set'].nil?
+    rows << ['Race', @card['race']] unless @card['race'].nil?
+    rows << ['Text', cleanText(@card['text'])] unless @card['text'].nil?
+    rows << ['Flavor', cleanText(@card['flavor'])] unless @card['flavor'].nil?
     table = Terminal::Table.new :rows => rows
     puts table
   end
