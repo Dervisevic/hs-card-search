@@ -1,7 +1,7 @@
 class Search
   def initialize()
-    @sets  = JSON.parse(File.read("data/sets.json").force_encoding("utf-8"))
-    @cards = JSON.parse(File.read("data/cards.json").force_encoding("utf-8"))
+    @sets  = JSON.parse(File.read(File.join(File.dirname(__FILE__), '..', 'data', 'sets.json')).force_encoding("utf-8"))
+    @cards = JSON.parse(File.read(File.join(File.dirname(__FILE__), '..', 'data', 'cards.json')).force_encoding("utf-8"))
     # There are a bunch of "cards" in the set from missions, like mukla's brother, reject these.
     @sets.reject! { |set| ["Credits", "Debug", "Missions", "System"].include?(set)  }
   end
